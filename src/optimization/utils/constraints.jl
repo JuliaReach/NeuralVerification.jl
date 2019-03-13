@@ -58,21 +58,21 @@ end
 function encode_layer!(::AbstractLinearProgram,
                        model::Model,
                        layer::Layer{Id},
-                       z_current::Vector{VariableRef},
-                       z_next::Vector{VariableRef},
+                       zᵢ::Vector{VariableRef},
+                       zᵢ₊₁::Vector{VariableRef},
                        args...)
-    @constraint(model, z_next .== layer.weights*z_current + layer.bias)
+    @constraint(model, zᵢ₊₁ .== affine_map(layer, zᵢ))
 end
 
 # SlackLP is slightly different, because we need to keep track of the slack variables
 function encode_layer!(SLP::SlackLP,
                        model::Model,
                        layer::Layer{Id},
-                       z1::Array{VariableRef,1},
-                       z2::Array{VariableRef,1},
+                       zᵢ::Array{VariableRef,1},
+                       zᵢ₊₁::Array{VariableRef,1},
                        δ...)
 
-    encode_layer!(StandardLP(), model, layer, z1, z2)
+    encode_layer!(StandardLP(), model, layer, zᵢ, zᵢ₊₁)
     # We need identity layer slack variables so that the algorithm doesn't
     # "get confused", but they are set to 0 because they're not relevant
     slack_vars = @variable(model, [1:n_nodes(layer)])
@@ -86,22 +86,21 @@ end
 function encode_layer!(::StandardLP,
                        model::Model,
                        layer::Layer{ReLU},
-                       z_current::Vector{VariableRef},
-                       z_next::Vector{VariableRef},
-                       δ::Vector{Bool})
+                       zᵢ::Vector{VariableRef},
+                       zᵢ₊₁::Vector{VariableRef},
+                       δᵢ₊₁::Vector{Bool})
 
     # The jth ReLU is forced to be active or inactive,
-    # depending on the activation pattern given by δᵢ.
+    # depending on the activation pattern given by δᵢ₊₁.
     # δᵢⱼ == true denotes ẑ >=0 (i.e. an *inactive* ReLU)
-
-    ẑ = layer.weights * z_current + layer.bias
+    ẑ = affine_map(layer, zᵢ)
     for j in 1:length(layer.bias)
-        if δ[j]
+        if δᵢ₊₁[j]
             @constraint(model, ẑ[j] >= 0.0)
-            @constraint(model, z_next[j] == ẑ[j])
+            @constraint(model, zᵢ₊₁[j] == ẑ[j])
         else
             @constraint(model, ẑ[j] <= 0.0)
-            @constraint(model, z_next[j] == 0.0)
+            @constraint(model, zᵢ₊₁[j] == 0.0)
         end
     end
 end
@@ -109,18 +108,18 @@ end
 function encode_layer!(SLP::SlackLP,
                        model::Model,
                        layer::Layer{ReLU},
-                       z_current::Vector{VariableRef},
-                       z_next::Vector{VariableRef},
-                       δ::Vector{Bool})
+                       zᵢ::Vector{VariableRef},
+                       zᵢ₊₁::Vector{VariableRef},
+                       δᵢ₊₁::Vector{Bool})
 
-    ẑ = layer.weights * z_current + layer.bias
+    ẑ = affine_map(layer, zᵢ)
     slack_vars = @variable(model, [1:length(layer.bias)])
     for j in 1:length(layer.bias)
-        if δ[j]
-            @constraint(model, z_next[j] == ẑ[j] + slack_vars[j])
+        if δᵢ₊₁[j]
+            @constraint(model, zᵢ₊₁[j] == ẑ[j] + slack_vars[j])
             @constraint(model, ẑ[j] + slack_vars[j] >= 0.0)
         else
-            @constraint(model, z_next[j] == slack_vars[j])
+            @constraint(model, zᵢ₊₁[j] == slack_vars[j])
             @constraint(model, 0.0 >= ẑ[j] - slack_vars[j])
         end
     end
@@ -131,16 +130,16 @@ end
 function encode_layer!(::LinearRelaxedLP,
                        model::Model,
                        layer::Layer{ReLU},
-                       z_current::Vector{VariableRef},
-                       z_next::Vector{VariableRef},
-                       δ::Vector{Bool})
+                       zᵢ::Vector{VariableRef},
+                       zᵢ₊₁::Vector{VariableRef},
+                       δᵢ₊₁::Vector{Bool})
 
-    ẑ = layer.weights * z_current + layer.bias
+    ẑ = affine_map(layer, zᵢ)
     for j in 1:length(layer.bias)
-        if δ[j]
-            @constraint(model, z_next[j] == ẑ[j])
+        if δᵢ₊₁[j]
+            @constraint(model, zᵢ₊₁[j] == ẑ[j])
         else
-            @constraint(model, z_next[j] == 0.0)
+            @constraint(model, zᵢ₊₁[j] == 0.0)
         end
     end
 end
@@ -149,23 +148,23 @@ end
 function encode_layer!(::TriangularRelaxedLP,
                        model::Model,
                        layer::Layer{ReLU},
-                       z_current::Vector{VariableRef},
-                       z_next::Vector{VariableRef},
+                       zᵢ::Vector{VariableRef},
+                       zᵢ₊₁::Vector{VariableRef},
                        bounds::Hyperrectangle)
 
-    ẑ = layer.weights * z_current + layer.bias
+    ẑ = affine_map(layer, zᵢ)
     ẑ_bound = approximate_affine_map(layer, bounds)
     l̂, û = low(ẑ_bound), high(ẑ_bound)
     for j in 1:length(layer.bias)
         if l̂[j] > 0.0
-            @constraint(model, z_next[j] == ẑ[j])
+            @constraint(model, zᵢ₊₁[j] == ẑ[j])
         elseif û[j] < 0.0
-            @constraint(model, z_next[j] == 0.0)
+            @constraint(model, zᵢ₊₁[j] == 0.0)
         else
             @constraints(model, begin
-                                    z_next[j] >= ẑ[j]
-                                    z_next[j] <= û[j] / (û[j] - l̂[j]) * (ẑ[j] - l̂[j])
-                                    z_next[j] >= 0.0
+                                    zᵢ₊₁[j] >= ẑ[j]
+                                    zᵢ₊₁[j] <= û[j] / (û[j] - l̂[j]) * (ẑ[j] - l̂[j])
+                                    zᵢ₊₁[j] >= 0.0
                                 end)
         end
     end
@@ -174,18 +173,18 @@ end
 function encode_layer!(MIP::MixedIntegerLP,
                        model::Model,
                        layer::Layer{ReLU},
-                       z_current::Vector{VariableRef},
-                       z_next::Vector{VariableRef},
-                       δ::Vector{VariableRef})
+                       zᵢ::Vector{VariableRef},
+                       zᵢ₊₁::Vector{VariableRef},
+                       δᵢ₊₁::Vector{VariableRef})
     m = MIP.m
 
-    ẑ = layer.weights * z_current + layer.bias
+    ẑ = affine_map(layer, zᵢ)
     for j in 1:length(layer.bias)
         @constraints(model, begin
-                                z_next[j] >= ẑ[j]
-                                z_next[j] >= 0.0
-                                z_next[j] <= ẑ[j] + m * δ[j]
-                                z_next[j] <= m - m * δ[j]
+                                zᵢ₊₁[j] >= ẑ[j]
+                                zᵢ₊₁[j] >= 0.0
+                                zᵢ₊₁[j] <= ẑ[j] + m * δᵢ₊₁[j]
+                                zᵢ₊₁[j] <= m - m * δᵢ₊₁[j]
                             end)
     end
 end
@@ -193,26 +192,25 @@ end
 function encode_layer!(::BoundedMixedIntegerLP,
                        model::Model,
                        layer::Layer{ReLU},
-                       z_current::Vector{VariableRef},
-                       z_next::Vector{VariableRef},
-                       δ::Vector,
+                       zᵢ::Vector{VariableRef},
+                       zᵢ₊₁::Vector{VariableRef},
+                       δᵢ₊₁::Vector,
                        bounds::Hyperrectangle)
 
-    ẑ = layer.weights * z_current + layer.bias
+    ẑ = affine_map(layer, zᵢ)
     ẑ_bound = approximate_affine_map(layer, bounds)
     l̂, û = low(ẑ_bound), high(ẑ_bound)
-
     for j in 1:length(layer.bias) # For evey node
         if l̂[j] >= 0.0
-            @constraint(model, z_next[j] == ẑ[j])
+            @constraint(model, zᵢ₊₁[j] == ẑ[j])
         elseif û[j] <= 0.0
-            @constraint(model, z_next[j] == 0.0)
+            @constraint(model, zᵢ₊₁[j] == 0.0)
         else
             @constraints(model, begin
-                                    z_next[j] >= ẑ[j]
-                                    z_next[j] >= 0.0
-                                    z_next[j] <= û[j] * δ[j]
-                                    z_next[j] <= ẑ[j] - l̂[j] * (1 - δ[j])
+                                    zᵢ₊₁[j] >= ẑ[j]
+                                    zᵢ₊₁[j] >= 0.0
+                                    zᵢ₊₁[j] <= û[j] * δᵢ₊₁[j]
+                                    zᵢ₊₁[j] <= ẑ[j] - l̂[j] * (1 - δᵢ₊₁[j])
                                 end)
         end
     end
