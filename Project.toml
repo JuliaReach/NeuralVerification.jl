@@ -1,5 +1,6 @@
 name = "NeuralVerification"
 uuid = "146f25fa-00e7-11e9-3ae5-fdbac6e12fa7"
+version = "0.1.0"
 
 [deps]
 CDDLib = "3391f64e-dcde-5f30-b752-e11513730f60"
@@ -15,6 +16,22 @@ Polyhedra = "67491407-f73d-577b-9b50-8179a7c68029"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 SCS = "c946c3f1-0d1f-5ce8-9dea-7daa1f7e2d13"
+
+[compat]
+julia = "1"
+CDDLib = "0.5, 0.6"
+Flux = "0.9, 0.10"
+GLPK = "0.11, 0.12"
+GLPKMathProgInterface = "0.4"
+Interpolations = "0.12"
+JuMP = "0.19, 0.20, 0.21"
+LazySets = "1.36"
+Parameters = "0.12"
+PicoSAT = "0.3"
+Polyhedra = "0.5, 0.6"
+Reexport = "0.2"
+Requires = "0.5, 1.0"
+SCS = "0.6"
 
 [extras]
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
