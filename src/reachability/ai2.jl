@@ -1,5 +1,5 @@
 """
-    Ai2
+    Ai2 <: AbstractSolver
 
 Ai2 performs over-approximated reachability analysis to compute the over-approximated output reachable set for a network.
 
@@ -22,7 +22,7 @@ T. Gehr, M. Mirman, D. Drashsler-Cohen, P. Tsankov, S. Chaudhuri, and M. Vechev,
 "Ai2: Safety and Robustness Certification of Neural Networks with Abstract Interpretation,"
 in *2018 IEEE Symposium on Security and Privacy (SP)*, 2018.
 """
-struct Ai2 end
+struct Ai2 <: AbstractSolver end
 
 function solve(solver::Ai2, problem::Problem)
     reach = forward_network(solver, problem.network, problem.input)

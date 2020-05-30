@@ -1,5 +1,5 @@
 """
-    Duality(optimizer)
+    Duality(optimizer) <: AbstractSolver
 
 Duality uses Lagrangian relaxation to compute over-approximated bounds for a network
 
@@ -23,7 +23,7 @@ Sound but not complete.
 "A Dual Approach to Scalable Verification of Deep Networks,"
 *ArXiv Preprint ArXiv:1803.06567*, 2018.](https://arxiv.org/abs/1803.06567)
 """
-@with_kw struct Duality
+@with_kw struct Duality <: AbstractSolver
     optimizer = GLPK.Optimizer
 end
 

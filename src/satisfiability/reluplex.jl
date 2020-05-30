@@ -1,5 +1,5 @@
 """
-    Reluplex(optimizer, eager::Bool)
+    Reluplex(optimizer, eager::Bool) <: AbstractSolver
 
 Reluplex uses binary tree search to find an activation pattern that maps a feasible input to an infeasible output.
 
@@ -22,7 +22,7 @@ Sound and complete.
 "Reluplex: An Efficient SMT Solver for Verifying Deep Neural Networks," in
 *International Conference on Computer Aided Verification*, 2017.](https://arxiv.org/abs/1702.01135)
 """
-@with_kw struct Reluplex
+@with_kw struct Reluplex <: AbstractSolver
     optimizer = GLPK.Optimizer
 end
 

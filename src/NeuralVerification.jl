@@ -4,7 +4,7 @@ using JuMP
 
 using GLPK, SCS # SCS only needed for Certify
 using PicoSAT # needed for Planet
-using LazySets, LazySets.Approximations
+using LazySets
 using Polyhedra, CDDLib
 
 using LinearAlgebra
@@ -15,12 +15,11 @@ import LazySets: dim, HalfSpace # necessary to avoid conflict with Polyhedra
 
 using Requires
 
-# abstract type Solver end # no longer needed
+abstract type AbstractSolver end
 
 # For optimization methods:
 import JuMP.MOI.OPTIMAL, JuMP.MOI.INFEASIBLE
-JuMP.Model(solver) = Model(with_optimizer(solver.optimizer))
-JuMP.value(vars::Vector{VariableRef}) = value.(vars)
+JuMP.Model(solver::AbstractSolver) = Model(solver.optimizer)
 
 include("utils/activation.jl")
 include("utils/network.jl")
@@ -37,10 +36,9 @@ export
     AbstractActivation,
     PolytopeComplement,
     complement,
-    # NOTE: not sure if exporting these is a good idea as far as namespace conflicts go:
-    # ReLU,
-    # Max,
-    # Id,
+    ReLU,
+    Max,
+    Id,
     GeneralAct,
     PiecewiseLinear,
     Problem,

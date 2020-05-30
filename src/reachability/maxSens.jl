@@ -1,5 +1,5 @@
 """
-    MaxSens(resolution::Float64, tight::Bool)
+    MaxSens(resolution::Float64, tight::Bool) <: AbstractSolver
 
 MaxSens performs over-approximated reachability analysis to compute the over-approximated output reachable set for a network.
 
@@ -25,7 +25,7 @@ Sound but not complete.
 "Output Reachable Set Estimation and Verification for Multi-Layer Neural Networks,"
 *ArXiv Preprint ArXiv:1708.03322*, 2017.](https://arxiv.org/abs/1708.03322)
 """
-@with_kw struct MaxSens
+@with_kw struct MaxSens <: AbstractSolver
     resolution::Float64 = 1.0
     tight::Bool         = false
 end

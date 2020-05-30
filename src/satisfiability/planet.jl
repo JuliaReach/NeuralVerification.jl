@@ -1,5 +1,5 @@
 """
-    Planet(optimizer, eager::Bool)
+    Planet(optimizer, eager::Bool) <: AbstractSolver
 
 Planet integrates a SAT solver (`PicoSAT.jl`) to find an activation pattern that maps a feasible input to an infeasible output.
 
@@ -25,7 +25,7 @@ in *International Symposium on Automated Technology for Verification and Analysi
 
 [https://github.com/progirep/planet](https://github.com/progirep/planet)
 """
-@with_kw struct Planet
+@with_kw struct Planet <: AbstractSolver
     optimizer = GLPK.Optimizer
     eager::Bool = false
 end
@@ -79,7 +79,7 @@ end
 
 
 function elastic_filtering(problem::Problem, δ::Vector{Vector{Bool}}, bounds::Vector{Hyperrectangle}, optimizer)
-    model = Model(with_optimizer(optimizer))
+    model = Model(optimizer)
     neurons = init_neurons(model, problem.network)
     add_set_constraint!(model, problem.input, first(neurons))
     add_complementary_set_constraint!(model, problem.output, last(neurons))
@@ -128,7 +128,7 @@ end
 
 function tighten_bounds(problem::Problem, optimizer)
     bounds = get_bounds(problem)
-    model = Model(with_optimizer(optimizer))
+    model = Model(optimizer)
     neurons = init_neurons(model, problem.network)
     add_set_constraint!(model, problem.input, first(neurons))
     add_complementary_set_constraint!(model, problem.output, last(neurons))
