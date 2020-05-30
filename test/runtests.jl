@@ -16,8 +16,11 @@ end
 
 include("identity_network.jl")
 include("relu_network.jl")
-include("inactive_relus.jl")
+#include("inactive_relus.jl")
+@warn "skipping inactive_relus tests"
 if Base.find_package("Flux") != nothing
     include("flux.jl")
 end
-include("complements.jl")
+
+@warn "skipping complements tests"
+#include("complements.jl")

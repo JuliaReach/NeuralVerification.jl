@@ -1,5 +1,5 @@
 """
-    Certify(optimizer)
+    Certify(optimizer) <: AbstractSolver
 
 Certify uses semidefinite programming to compute over-approximated certificates for a neural network with only one hidden layer.
 
@@ -23,7 +23,7 @@ Sound but not complete.
 "Certified Defenses against Adversarial Examples,"
 *ArXiv Preprint ArXiv:1801.09344*, 2018.](https://arxiv.org/abs/1801.09344)
 """
-@with_kw struct Certify
+@with_kw struct Certify <: AbstractSolver
     optimizer = SCS.Optimizer
 end
 
@@ -74,5 +74,3 @@ function get_M(v::Vector{Float64}, W::Matrix{Float64})
     M = [Mrow1; Mrow2; Mrow3]
     return M
 end
-
-

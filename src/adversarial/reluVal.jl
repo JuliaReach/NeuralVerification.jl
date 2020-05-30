@@ -1,5 +1,5 @@
 """
-    ReluVal(max_iter::Int64, tree_search::Symbol)
+    ReluVal(max_iter::Int64, tree_search::Symbol) <: AbstractSolver
 
 ReluVal combines symbolic reachability analysis with iterative interval refinement to minimize over-approximation of the reachable set.
 
@@ -26,7 +26,7 @@ Sound but not complete.
 
 [https://github.com/tcwangshiqi-columbia/ReluVal](https://github.com/tcwangshiqi-columbia/ReluVal)
 """
-@with_kw struct ReluVal
+@with_kw struct ReluVal <: AbstractSolver
     max_iter::Int64     = 10
     tree_search::Symbol = :DFS # only :DFS/:BFS allowed? If so, we should assert this.
 end

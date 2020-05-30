@@ -1,7 +1,7 @@
 # Input constraint is Hyperrectangle (uniform radius)
 # Output constriant is HPolytope with one constraint
 """
-    FastLin(maxIter::Int64, ϵ0::Float64, accuracy::Float64)
+    FastLin(maxIter::Int64, ϵ0::Float64, accuracy::Float64) <: AbstractSolver
 
 FastLin combines reachability analysis with binary search to find maximum allowable disturbance.
 
@@ -27,7 +27,7 @@ Sound but not complete.
 "Towards Fast Computation of Certified Robustness for ReLU Networks,"
 *ArXiv Preprint ArXiv:1804.09699*, 2018.](https://arxiv.org/abs/1804.09699)
 """
-@with_kw struct FastLin
+@with_kw struct FastLin <: AbstractSolver
     maxIter::Int64    = 10
     ϵ0::Float64       = 100.0
     accuracy::Float64 = 0.1

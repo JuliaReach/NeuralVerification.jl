@@ -1,5 +1,5 @@
 """
-    DLV(ϵ::Float64)
+    DLV(ϵ::Float64) <: AbstractSolver
 
 DLV searches layer by layer for counter examples in hidden layers.
 
@@ -31,7 +31,7 @@ in *International Conference on Computer Aided Verification*, 2017.](https://arx
 
 [https://github.com/VeriDeep/DLV](https://github.com/VeriDeep/DLV)
 """
-@with_kw struct DLV
+@with_kw struct DLV <: AbstractSolver
     optimizer = GLPK.Optimizer
     ϵ::Float64 = 1.0
 end
@@ -90,7 +90,7 @@ function backward_map(solver::DLV, y::Vector{Float64}, nnet::Network, bounds::Ve
     o = max_disturbance!(model, first(neurons) - input.center)
     optimize!(model)
     if termination_status(model) == OPTIMAL
-        return (true, value(first(neurons)))
+        return (true, value.(first(neurons)))
     else
         return (false, [])
     end

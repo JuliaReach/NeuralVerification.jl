@@ -1,5 +1,5 @@
 """
-    FastLip(maxIter::Int64, ϵ0::Float64, accuracy::Float64)
+    FastLip(maxIter::Int64, ϵ0::Float64, accuracy::Float64) <: AbstractSolver
 
 FastLip adds Lipschitz estimation on top of FastLin.
 
@@ -25,7 +25,7 @@ Sound but not complete.
 "Towards Fast Computation of Certified Robustness for ReLU Networks,"
 *ArXiv Preprint ArXiv:1804.09699*, 2018.](https://arxiv.org/abs/1804.09699)
 """
-@with_kw struct FastLip
+@with_kw struct FastLip <: AbstractSolver
     maxIter::Int64    = 10
     ϵ0::Float64       = 100.0
     accuracy::Float64 = 0.1

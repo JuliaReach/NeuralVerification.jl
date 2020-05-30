@@ -38,7 +38,8 @@
         group2 = [NSVerify(), MIPVerify(), ILP()]
         group3 = [Duality()] # hypothetically also ConvDual
         group4 = [FastLin(), FastLip()]
-        group6 = [Reluplex(), Planet()]
+        group6 = [Reluplex()] # , Planet()
+        @warn "skipping Planet tests in relu network"
 
         for solver in [group2; group3; group4; group6]
             holds    = solve(solver, problem_holds)

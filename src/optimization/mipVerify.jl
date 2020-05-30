@@ -1,5 +1,5 @@
 """
-    MIPVerify(optimizer)
+    MIPVerify(optimizer) <: AbstractSolver
 
 MIPVerify computes maximum allowable disturbance using mixed integer linear programming.
 
@@ -26,7 +26,7 @@ V. Tjeng, K. Xiao, and R. Tedrake,
 
 [https://github.com/vtjeng/MIPVerify.jl](https://github.com/vtjeng/MIPVerify.jl)
 """
-@with_kw struct MIPVerify
+@with_kw struct MIPVerify <: AbstractSolver
     optimizer = GLPK.Optimizer
 end
 

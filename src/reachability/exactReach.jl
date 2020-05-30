@@ -1,5 +1,5 @@
 """
-    ExactReach
+    ExactReach <: AbstractSolver
 
 ExactReach performs exact reachability analysis to compute the output reachable set for a network.
 
@@ -22,7 +22,7 @@ Sound and complete.
 "Reachable Set Computation and Safety Verification for Neural Networks with ReLU Activations,"
 *ArXiv Preprint ArXiv:1712.08163*, 2017.](https://arxiv.org/abs/1712.08163)
 """
-struct ExactReach end
+struct ExactReach <: AbstractSolver end
 
 function solve(solver::ExactReach, problem::Problem)
     reach = forward_network(solver, problem.network, problem.input)

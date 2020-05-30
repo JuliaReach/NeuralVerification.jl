@@ -1,5 +1,5 @@
 """
-    Sherlock(optimizer, ϵ::Float64)
+    Sherlock(optimizer, ϵ::Float64) <: AbstractSolver
 
 Sherlock combines local and global search to estimate the range of the output node.
 
@@ -27,7 +27,7 @@ Sound but not complete.
 
 [https://github.com/souradeep-111/sherlock](https://github.com/souradeep-111/sherlock)
 """
-@with_kw struct Sherlock
+@with_kw struct Sherlock <: AbstractSolver
     optimizer = GLPK.Optimizer
     ϵ::Float64 = 0.1
 end
@@ -63,7 +63,7 @@ function local_search(problem::Problem, x::Vector{Float64}, optimizer, type::Sym
     nnet = problem.network
     act_pattern = get_activation(nnet, x)
     gradient = get_gradient(nnet, x)
-    model = Model(with_optimizer(optimizer))
+    model = Model(optimizer)
     neurons = init_neurons(model, nnet)
     add_set_constraint!(model, problem.input, first(neurons))
     encode_network!(model, nnet, neurons, act_pattern, StandardLP())
@@ -71,7 +71,7 @@ function local_search(problem::Problem, x::Vector{Float64}, optimizer, type::Sym
     index = ifelse(type == :max, 1, -1)
     @objective(model, Max, index * o[1])
     optimize!(model)
-    x_new = value(neurons[1])
+    x_new = value.(neurons[1])
     bound_new = compute_output(nnet, x_new)
     return (x_new, bound_new[1])
 end
