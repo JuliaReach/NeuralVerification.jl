@@ -14,6 +14,10 @@ macro no_error(ex)
     end
 end
 
+# comment to disable assertion checks
+#LazySets.deactivate_assertions()
+#LazySets.Assertions.deactivate_assertions(NeuralVerification)
+
 include("identity_network.jl")
 include("relu_network.jl")
 #include("inactive_relus.jl")
