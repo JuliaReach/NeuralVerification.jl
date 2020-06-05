@@ -49,10 +49,13 @@ function interpret_result(reach, bound, output, x_l, x_u)
 end
 
 function output_bound(solver::BaB, problem::Problem, type::Symbol)
-    nnet = problem.network
-    global_concrete, x_star = concrete_bound(nnet, problem.input, type)
-    global_approx = approx_bound(nnet, problem.input, solver.optimizer, type)
-    doms = Tuple{Float64, Hyperrectangle}[(global_approx, problem.input)]
+    output_bound(solver, problem.network, problem.input, type)
+end
+
+function output_bound(solver::BaB, nnet::Network, input, type::Symbol)
+    global_concrete, x_star = concrete_bound(nnet, input, type)
+    global_approx = approx_bound(nnet, input, solver.optimizer, type)
+    doms = Tuple{Float64, Hyperrectangle}[(global_approx, input)]
     index = ifelse(type == :max, 1, -1)
     while index * (global_approx - global_concrete) > solver.ϵ
         dom = pick_out(doms) # pick_out implements the search strategy
