@@ -12,7 +12,7 @@ Ai2 performs over-approximated reachability analysis to compute the over-approxi
 `ReachabilityResult`
 
 # Method
-Reachability analysis using split and join.
+Reachability analysis using split and join using Zonotopes as proposed on [1].
 
 # Property
 Sound but not complete.
