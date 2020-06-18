@@ -23,7 +23,7 @@ end
 
 function check_inclusion(reach::LazySet, output)
     if issubset(reach, output)
-        return ReachabilityResult(:holds, reach)
+        return ReachabilityResult(:holds, [reach])
     end
     return ReachabilityResult(:violated, [reach])
 end
