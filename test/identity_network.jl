@@ -30,6 +30,22 @@
 
     end
 
+    @testset "Group 1.1" begin
+        problem_holds    = Problem(small_nnet, in_hpoly, convert(Zonotope, out_superset))
+        problem_violated = Problem(small_nnet, in_hpoly, convert(Zonotope, out_overlapping))
+
+        for solver in [Ai2z()]
+            holds    = solve(solver, problem_holds)
+            violated = solve(solver, problem_violated)
+
+            @testset "$(typeof(solver))" begin
+                @test holds.status    ∈ (:holds, :unknown)
+                @test violated.status ∈ (:violated, :unknown)
+            end
+        end
+
+    end
+
     @testset "Group 2, 3, 4, 6" begin
 
         problem_holds    = Problem(small_nnet, in_hyper, HPolytope([HalfSpace([1.], -10.)]))     # y < -10.0
