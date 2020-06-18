@@ -3,7 +3,7 @@
 # Performs layer-by-layer propagation
 # It is called by all solvers under reachability
 # TODO: also called by ReluVal and FastLin, so move to general utils (or to network.jl)
-function forward_network(solver, nnet::Network, input::AbstractPolytope)
+function forward_network(solver, nnet::Network, input::LazySet)
     reach = input
     for layer in nnet.layers
         reach = forward_layer(solver, layer, reach)
@@ -14,22 +14,22 @@ end
 # Checks whether the reachable set belongs to the output constraint
 # It is called by all solvers under reachability
 # Note vertices_list is not defined for HPolytope: to be defined
-function check_inclusion(reach::Vector{<:AbstractPolytope}, output)
+function check_inclusion(reach::Vector{<:LazySet}, output)
     for poly in reach
         issubset(poly, output) || return ReachabilityResult(:violated, reach)
     end
-    return ReachabilityResult(:holds, similar(reach, 0))
+    return ReachabilityResult(:holds, reach)
 end
 
-function check_inclusion(reach::P, output) where P<:AbstractPolytope
+function check_inclusion(reach::LazySet, output)
     if issubset(reach, output)
-        return ReachabilityResult(:holds, P[])
+        return ReachabilityResult(:holds, [reach])
     end
     return ReachabilityResult(:violated, [reach])
 end
 
 # return a vector so that append! is consistent with the relu forward_partition
-forward_partition(act::Id, input::HPolytope) = [input]
+forward_partition(act::Id, input) = [input]
 
 function forward_partition(act::ReLU, input::HPolytope)
     n = dim(input)
@@ -54,4 +54,9 @@ function getP(h::Int64, n::Int64)
         vec[i] = ifelse(str[i] == '1', 1, 0)
     end
     return Diagonal(vec)
+end
+
+# for Zonotopes
+function forward_partition(act::ReLU, input::Zonotope)
+    return overapproximate(Rectification(Z), Zonotope)
 end
