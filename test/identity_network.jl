@@ -8,6 +8,7 @@
     # The input set is always [-0.9:0.9]
     in_hyper  = Hyperrectangle(low = [-0.9], high = [0.9])
     in_hpoly  = convert(HPolytope, in_hyper)
+    in_zono  = convert(Zonotope, in_hyper)
 
     # superset of the output
     out_superset    = Hyperrectangle(low = [-70.0], high = [-23.0])
@@ -31,8 +32,8 @@
     end
 
     @testset "Group 1.1" begin
-        problem_holds    = Problem(small_nnet, in_hpoly, convert(Zonotope, out_superset))
-        problem_violated = Problem(small_nnet, in_hpoly, convert(Zonotope, out_overlapping))
+        problem_holds    = Problem(small_nnet, in_zono, convert(Zonotope, out_superset))
+        problem_violated = Problem(small_nnet, in_zono, convert(Zonotope, out_overlapping))
 
         for solver in [Ai2z()]
             holds    = solve(solver, problem_holds)
