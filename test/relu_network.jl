@@ -18,7 +18,23 @@
         problem_holds    = Problem(small_nnet, in_hpoly, convert(HPolytope, out_superset))
         problem_violated = Problem(small_nnet, in_hpoly, convert(HPolytope, out_overlapping))
 
-        for solver in [MaxSens(resolution = 0.6), ExactReach(), Ai2(), Ai2z()]
+        for solver in [MaxSens(resolution = 0.6), ExactReach(), Ai2()]
+            holds    = solve(solver, problem_holds)
+            violated = solve(solver, problem_violated)
+
+            @testset "$(typeof(solver))" begin
+                @test holds.status    ∈ (:holds, :unknown)
+                @test violated.status ∈ (:violated, :unknown)
+            end
+        end
+
+    end
+
+    @testset "Group 1.1" begin
+        problem_holds    = Problem(small_nnet, in_hpoly, convert(Zonotope, out_superset))
+        problem_violated = Problem(small_nnet, in_hpoly, convert(Zonotope, out_overlapping))
+
+        for solver in [Ai2z()]
             holds    = solve(solver, problem_holds)
             violated = solve(solver, problem_violated)
 
