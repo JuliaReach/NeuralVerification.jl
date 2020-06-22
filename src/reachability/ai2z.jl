@@ -34,14 +34,5 @@ forward_layer(solver::Ai2z, layer::Layer, inputs::Vector{<:Zonotope}) = forward_
 function forward_layer(solver::Ai2z, layer::Layer, input::Zonotope)
     outlinear = affine_map(layer, input)
     relued_subsets = forward_partition(layer.activation, outlinear)
-    return overapproximate(convex_hull(relued_subsets), Zonotope)
-end
-
-# extend lazysets convex_hull to a vector of polytopes
-function LazySets.convex_hull(sets::Vector{<:Zonotope}; backend = CDDLib.Library())
-    hull = first(sets)
-    for P in sets
-        hull = convex_hull(hull, P)
-    end
-    return hull
+    return relued_subsets
 end
