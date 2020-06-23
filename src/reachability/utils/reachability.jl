@@ -58,5 +58,5 @@ end
 
 # for Zonotopes
 function forward_partition(act::ReLU, input::Zonotope)
-    return overapproximate(Rectification(Z), Zonotope)
+    return overapproximate(Rectification(input), Zonotope)
 end

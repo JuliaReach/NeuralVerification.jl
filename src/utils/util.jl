@@ -305,10 +305,10 @@ Return:
 """
 affine_map(layer::Layer, input::AbstractVector) = layer.weights*input + layer.bias
 
-function affine_map(layer::Layer, input::AbstractPolytope)
+function affine_map(layer::Layer, input::LazySet)
     W, b = layer.weights, layer.bias
     P = affine_map(W, input, b)
-    return convert(HPolytope, P)
+    return P
 end
 
 """
