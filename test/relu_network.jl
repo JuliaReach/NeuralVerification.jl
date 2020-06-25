@@ -8,7 +8,6 @@
     # The input set is [-0.9:0.9]
     in_hyper  = Hyperrectangle(low = [-0.9], high = [0.9])
     in_hpoly  = convert(HPolytope, in_hyper)
-    in_zono  = convert(Zonotope, in_hyper)
 
     # Output region is entirely contained in this interval:
     out_superset    = Hyperrectangle(low = [30.0], high = [80.0])    # 20.0 ≤ y ≤ 90.0
