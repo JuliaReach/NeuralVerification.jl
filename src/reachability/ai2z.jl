@@ -29,9 +29,13 @@ function solve(solver::Ai2z, problem::Problem)
     return check_inclusion(reach, problem.output)
 end
 
-forward_layer(solver::Ai2z, layer::Layer, inputs::Vector{<:Zonotope}) = forward_layer.(solver, layer, inputs)
+forward_layer(solver::Ai2z, layer::Layer, inputs::Vector{<:LazySet}) = forward_layer.(solver, layer, inputs)
 
-function forward_layer(solver::Ai2z, layer::Layer, input::Zonotope)
+function forward_layer(solver::Ai2z, layer::Layer, input::AbstractPolytope)
+    return forward_layer(solver, layer, overapproximate(input, Hyperrectangle))
+end
+
+function forward_layer(solver::Ai2z, layer::Layer, input::AbstractZonotope)
     outlinear = affine_map(layer, input)
     relued_subsets = forward_partition(layer.activation, outlinear)
     return relued_subsets
