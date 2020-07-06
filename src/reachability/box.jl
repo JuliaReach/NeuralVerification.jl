@@ -33,7 +33,7 @@ function forward_layer(solver::Box, layer::Layer, input::AbstractPolytope)
 end
 
 function forward_layer(solver::Box, layer::Layer, input::Hyperrectangle)
-    outlinear = overapproximate(affine_map(layer, input), Hyperrectangle)
+    outlinear = overapproximate(AffineMap(layer.weights, input, layer.bias), Hyperrectangle)
     relued_subsets = forward_partition(layer.activation, outlinear)
     return relued_subsets
 end
