@@ -14,7 +14,7 @@ end
 # Checks whether the reachable set belongs to the output constraint
 # It is called by all solvers under reachability
 # Note vertices_list is not defined for HPolytope: to be defined
-function check_inclusion(reach::Vector{<:LazySet}, output)
+function check_inclusion(reach, output)
     for poly in reach
         issubset(poly, output) || return ReachabilityResult(:violated, reach)
     end
