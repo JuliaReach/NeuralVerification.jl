@@ -29,7 +29,9 @@ function check_inclusion(reach::LazySet, output)
 end
 
 # return a vector so that append! is consistent with the relu forward_partition
-forward_partition(act::Id, input) = [input]
+forward_partition(act::Id, input::AbstractPolytope) = [input]
+
+forward_partition(act::Id, input::Zonotope) = input
 
 function forward_partition(act::ReLU, input::HPolytope)
     n = dim(input)
