@@ -14,7 +14,7 @@ end
 # Checks whether the reachable set belongs to the output constraint
 # It is called by all solvers under reachability
 # Note vertices_list is not defined for HPolytope: to be defined
-function check_inclusion(reach::Vector{<:LazySet}, output)
+function check_inclusion(reach, output)
     for poly in reach
         issubset(poly, output) || return ReachabilityResult(:violated, reach)
     end
@@ -29,7 +29,9 @@ function check_inclusion(reach::LazySet, output)
 end
 
 # return a vector so that append! is consistent with the relu forward_partition
-forward_partition(act::Id, input) = [input]
+forward_partition(act::Id, input::AbstractPolytope) = [input]
+
+forward_partition(act::Id, input::Zonotope) = input
 
 function forward_partition(act::ReLU, input::HPolytope)
     n = dim(input)

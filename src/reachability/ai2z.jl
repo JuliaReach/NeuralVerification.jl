@@ -25,7 +25,13 @@ in *2018 IEEE Symposium on Security and Privacy (SP)*, 2018.
 struct Ai2z <: AbstractSolver end
 
 function solve(solver::Ai2z, problem::Problem)
-    reach = forward_network(solver, problem.network, problem.input)
+    if isa(problem.input, LazySet)
+        input = [problem.input]
+    else
+        input = problem.input
+    end
+    f_n(x) = forward_network(solver, problem.network, x)
+    reach = map(f_n, input)
     return check_inclusion(reach, problem.output)
 end
 
